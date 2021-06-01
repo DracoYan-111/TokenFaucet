@@ -34,7 +34,9 @@ contract TokenFaucet is Ownable {
         uint8 _quantity,
         ERC20 _arche,
         ERC20[11] memory _tokenOnes){
+        //发送数量
         Quantity = _quantity;
+        //必发代币Arche
         Arche = _arche;
         //token数组1
         Tokens = _tokenOnes;
@@ -54,7 +56,7 @@ contract TokenFaucet is Ownable {
 
     /*
     生成随机数
-    返回 0-4之间的随机数
+    返回 0-11之间的随机数
     */
     function PseudoRandomNumber() private view returns (uint8 a, uint8 b) {
         uint8 count = 35;
@@ -76,8 +78,12 @@ contract TokenFaucet is Ownable {
 
     /*
     修改发送数量和发送间隔
+    传入 新的发送数量,新的领取间隔
     */
-    function SetQuantityAndInterval(uint8 _quantity, uint32 _interval) public onlyOwner {
+    function SetQuantityAndInterval(
+        uint8 _quantity,
+        uint32 _interval)
+    public onlyOwner {
         //发送数量
         Quantity = _quantity;
         //发送间隔
@@ -86,6 +92,7 @@ contract TokenFaucet is Ownable {
 
     /*
     修改token列表
+    传入 新的arche地址，新的11位代币数组
     */
     function SetToken(
         ERC20 _arche,

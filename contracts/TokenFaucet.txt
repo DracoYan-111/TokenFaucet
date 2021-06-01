@@ -1,0 +1,21 @@
+//----------------部署----------------
+选择：TokenFaucet
+_quantity:发送数量
+_arche:Arche地址
+_tokenOnes:11位其他代币数组
+
+//----------------用户方法----------------
+Receive:领取随机代币
+
+//----------------权限方法----------------
+/*
+修改发送数量和发送间隔
+传入 新的发送数量,新的领取间隔
+*/
+function SetQuantityAndInterval(uint8 _quantity, uint32 _interval)
+
+/*
+修改token列表
+传入 新的arche地址，新的11位代币数组
+*/
+function SetToken(ERC20 _arche,ERC20[11] memory _tokenOnes)
