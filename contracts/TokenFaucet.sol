@@ -17,11 +17,7 @@ contract TokenFaucet is Ownable {
     //必发代币Arche
     ERC20 public  Arche = ERC20(address(0));
     //token数组1
-    ERC20[4] public TokenOnes;
-    //token数组2
-    ERC20[4] public TokenTwos;
-    //token数组3
-    ERC20[4] public TokenThrees;
+    ERC20[11] public Tokens;
     //发送数量
     uint8 public Quantity = 1;
     //发送间隔
@@ -37,28 +33,22 @@ contract TokenFaucet is Ownable {
     constructor(
         uint8 _quantity,
         ERC20 _arche,
-        ERC20[4] memory _tokenOnes,
-        ERC20[4] memory _tokenTwos,
-        ERC20[4] memory _tokenThrees){
+        ERC20[11] memory _tokenOnes){
         Quantity = _quantity;
         Arche = _arche;
         //token数组1
-        TokenOnes = _tokenOnes;
-        //token数组2
-        TokenTwos = _tokenTwos;
-        //token数组3
-        TokenThrees = _tokenThrees;
+        Tokens = _tokenOnes;
+
     }
 
     /*
     用户领取
     */
     function Receive() public lock() {
-        (uint8 a,uint8 b,uint8 c) = PseudoRandomNumber();
+        (uint8 a,uint8 b) = PseudoRandomNumber();
         Arche.safeTransfer(msg.sender, Quantity * (10 ** Arche.decimals()));
-        TokenOnes[a].safeTransfer(msg.sender, Quantity * (10 ** TokenOnes[a].decimals()));
-        TokenTwos[b].safeTransfer(msg.sender, Quantity * (10 ** TokenTwos[b].decimals()));
-        TokenThrees[c].safeTransfer(msg.sender, Quantity * (10 ** TokenThrees[c].decimals()));
+        Tokens[a].safeTransfer(msg.sender, Quantity * (10 ** Tokens[a].decimals()));
+        Tokens[b].safeTransfer(msg.sender, Quantity * (10 ** Tokens[b].decimals()));
         UserLock[msg.sender] = block.timestamp;
     }
 
@@ -66,20 +56,21 @@ contract TokenFaucet is Ownable {
     生成随机数
     返回 0-4之间的随机数
     */
-    function PseudoRandomNumber() public view returns (uint8 a, uint8 b, uint8 c) {
+    function PseudoRandomNumber() private view returns (uint8 a, uint8 b) {
         uint8 count = 35;
-        uint8[3] memory counts;
+        uint8[2] memory counts;
         for (uint8 i = 0; i < counts.length; i++) {
             uint8 randomNumber = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, count--))) % 100);
-            if (randomNumber > 4) {
-                randomNumber = randomNumber / 2;
+            if (randomNumber > 11) {
+                randomNumber = randomNumber / 4;
             }
-            counts[i] = randomNumber / 14;
+            if (randomNumber / 2 < 12) {
+                counts[i] = randomNumber / 2;
+            }
         }
         return (
         counts[0],
-        counts[1],
-        counts[2]
+        counts[1]
         );
     }
 
@@ -98,15 +89,10 @@ contract TokenFaucet is Ownable {
     */
     function SetToken(
         ERC20 _arche,
-        ERC20[4] memory _tokenOnes,
-        ERC20[4] memory _tokenTwos,
-        ERC20[4] memory _tokenThrees) public onlyOwner {
+        ERC20[11] memory _tokenOnes
+    ) public onlyOwner {
         Arche = _arche;
         //token数组1
-        TokenOnes = _tokenOnes;
-        //token数组2
-        TokenTwos = _tokenTwos;
-        //token数组3
-        TokenThrees = _tokenThrees;
+        Tokens = _tokenOnes;
     }
 }
