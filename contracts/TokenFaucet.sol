@@ -8,27 +8,25 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 contract TokenFaucet is Ownable {
-    //----------------------- EVENT -----------------------
-    event Receives(address, ERC20[4], uint256);
-
     using SafeMath for uint;
     using SafeERC20 for ERC20;
 
     //必发代币Arche
-    ERC20 public  Arche = ERC20(address(0));
+    ERC20 private  Arche = ERC20(address(0));
     //token数组1
-    ERC20[11] public Tokens;
+    ERC20[11] private Tokens;
     //发送数量
-    uint8 public Quantity = 1;
+    uint8 private Quantity = 100;
     //发送间隔
-    uint32 public Interval = 86400;
+    uint32 private Interval = 864000000;
     //用户当前是否可以领取
-    mapping(address => uint256) UserLock;
+    mapping(address => uint256) private UserLock;
 
     modifier lock(){
         require(block.timestamp.sub(UserLock[msg.sender]) > Interval, "Received on the day (T_T)");
         _;
     }
+    
 
     constructor(
         uint8 _quantity,
@@ -47,10 +45,9 @@ contract TokenFaucet is Ownable {
     用户领取
     */
     function Receive() public lock() {
-        (uint8 a,uint8 b) = PseudoRandomNumber();
+        (uint8 a) = PseudoRandomNumber();
         Arche.safeTransfer(msg.sender, Quantity * (10 ** Arche.decimals()));
         Tokens[a].safeTransfer(msg.sender, Quantity * (10 ** Tokens[a].decimals()));
-        Tokens[b].safeTransfer(msg.sender, Quantity * (10 ** Tokens[b].decimals()));
         UserLock[msg.sender] = block.timestamp;
     }
 
@@ -58,22 +55,16 @@ contract TokenFaucet is Ownable {
     生成随机数
     返回 0-11之间的随机数
     */
-    function PseudoRandomNumber() private view returns (uint8 a, uint8 b) {
+    function PseudoRandomNumber() private view returns (uint8 a) {
         uint8 count = 35;
-        uint8[2] memory counts;
-        for (uint8 i = 0; i < counts.length; i++) {
             uint8 randomNumber = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, count--))) % 100);
             if (randomNumber > 11) {
                 randomNumber = randomNumber / 4;
             }
             if (randomNumber / 2 < 12) {
-                counts[i] = randomNumber / 2;
+               a = randomNumber / 2;
             }
-        }
-        return (
-        counts[0],
-        counts[1]
-        );
+        return a;
     }
 
     /*
@@ -101,5 +92,17 @@ contract TokenFaucet is Ownable {
         Arche = _arche;
         //token数组1
         Tokens = _tokenOnes;
+    }
+    
+    /*
+    查看用户是否可以领取
+    返回 true / false
+    */
+    function GetUserData() public view returns(bool userData){
+        userData = false;
+      if (UserLock[msg.sender] < Interval){
+          userData =true;
+      }
+      return userData;
     }
 }
